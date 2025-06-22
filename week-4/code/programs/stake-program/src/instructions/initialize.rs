@@ -12,7 +12,7 @@ pub struct Initialize<'info> {
     #[account(
         init_if_needed,
         payer = admin,
-        seeds = [REWARD_VAULT_SEED], // How would the system handle multiple reward vaults for different tokens?        
+        seeds = [REWARD_VAULT_SEED, mint.key().as_ref()], // ✅ Thêm mint vào seed
         bump,
         token::mint = mint,
         token::authority = reward_vault,

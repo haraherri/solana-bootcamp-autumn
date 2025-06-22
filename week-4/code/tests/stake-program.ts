@@ -103,7 +103,7 @@ describe("stake-program", () => {
 
     // Get reward vault address - this should be derived consistently
     rewardVault = anchor.web3.PublicKey.findProgramAddressSync(
-      [Buffer.from("reward")],
+      [Buffer.from("reward"), usdcMintKp.publicKey.toBuffer()], // ✅ Thêm mint
       program.programId
     )[0];
   });
@@ -191,25 +191,24 @@ describe("stake-program", () => {
   it("Unstake successfully", async () => {
     // mint reward token to reward vault using the same mint
     const mintTx = new anchor.web3.Transaction();
-
+  
     const mintToRewardVaultIx = createMintToInstruction(
-      usdcMintKp.publicKey, // Use the same mint
+      usdcMintKp.publicKey,
       rewardVault,
       staker.publicKey,
       1000 * 10 ** 6,
       []
     );
-
+  
     mintTx.add(mintToRewardVaultIx);
-
     await provider.sendAndConfirm(mintTx);
-
+  
     const vaultTokenAccount = getAssociatedTokenAddressSync(
       usdcMintKp.publicKey,
       stakeInfo,
       true
     );
-
+  
     const tx = await program.methods
       .unstake()
       .accounts({
@@ -224,29 +223,27 @@ describe("stake-program", () => {
         associatedTokenProgram: ASSOCIATED_TOKEN_PROGRAM_ID,
       })
       .rpc();
-
+  
     console.log("Your transaction signature", tx);
-
-    const stakeInfoAccount = await program.account.stakeInfo.fetch(stakeInfo);
-
-    expect(stakeInfoAccount.isStaked).to.equal(false);
-    expect(Number(stakeInfoAccount.amount)).to.equal(0);
-
-    const stakerAccount = await getAccount(
-      provider.connection,
-      stakerTokenAccount
-    );
-
-    const rewardVaultAccount = await getAccount(
-      provider.connection,
-      rewardVault
-    );
-
-    const vaultAccount = await getAccount(
-      provider.connection,
-      vaultTokenAccount
-    );
-
+  
+    // ❌ REMOVE: expect stakeInfoAccount fetch vì account đã bị close
+    // const stakeInfoAccount = await program.account.stakeInfo.fetch(stakeInfo);
+    // expect(stakeInfoAccount.isStaked).to.equal(false);
+  
+    // ✅ ADD: Verify account is closed
+    try {
+      await program.account.stakeInfo.fetch(stakeInfo);
+      expect.fail("Account should be closed");
+    } catch (error) {
+      expect(error.message).to.include("Account does not exist");
+      console.log("✅ Account successfully closed");
+    }
+  
+    // Check token balances
+    const stakerAccount = await getAccount(provider.connection, stakerTokenAccount);
+    const rewardVaultAccount = await getAccount(provider.connection, rewardVault);
+    const vaultAccount = await getAccount(provider.connection, vaultTokenAccount);
+  
     expect(Number(stakerAccount.amount)).to.greaterThan(1000 * 10 ** 6);
     expect(Number(vaultAccount.amount)).to.equal(0);
     expect(Number(rewardVaultAccount.amount)).to.lessThan(1000 * 10 ** 6);
