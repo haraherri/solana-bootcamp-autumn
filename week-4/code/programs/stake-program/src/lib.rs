@@ -6,7 +6,7 @@ mod errors;
 mod instructions;
 mod state;
 
-declare_id!("3LGRcTbj4VqHuB9z55au1vW5NE5TRzVqicFRsMWQVjG7");
+declare_id!("J5eGJQtqKE85AnaTjkJQ6GDFr5V8n8LjhZ9GzqBUSAte");
 
 #[program]
 pub mod stake_program {
