@@ -1,0 +1,17 @@
+{
+  "name": "assignment",
+  "version": "1.0.0",
+  "description": "- Write code to perform the following tasks:\r     - Create a new Solana account with a balance of some SOL.\r     - Transfer 0.1 SOL from the newly created account to `63EEC9FfGyksm7PkVC6z8uAmqozbQcTzbkWJNsgqjkFs` account.\r     - Close the newly created account.\r - All of the above steps must be completed in a single transaction.\r - Please include the signatures of your executed transactions run on devnet in your submission.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "run-from-code": "cd ../code && yarn execute ../assignment/assignment.ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@metaplex-foundation/js": "^0.20.1",
+    "@solana/web3.js": "^1.98.2",
+    "dotenv": "^16.5.0"
+  }
+}
