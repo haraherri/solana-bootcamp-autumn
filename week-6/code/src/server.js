@@ -11,7 +11,8 @@ const PORT = process.env.PORT || 3000;
 const BASE_URL = `http://localhost:${PORT}`;
 const DEFAULT_SOL_ADDRESS = process.env.DEFAULT_SOL_ADDRESS;
 const DEFAULT_SOL_AMOUNT = 0.0001;
-const connection = new Connection(clusterApiUrl("mainnet-beta"));
+const SOLANA_NETWORK = process.env.SOLANA_NETWORK || "devnet";
+const connection = new Connection(clusterApiUrl(SOLANA_NETWORK));
 
 const app = express();
 app.set("trust proxy", 1);
@@ -148,12 +149,7 @@ function onHealthCheck() {
 function onSignal() {
   console.log("server is starting cleanup");
   // close db connections, etc
-  return Promise.all([
-    prisma
-      .$disconnect()
-      .then(() => console.log("postgres disconnected successfully"))
-      .catch((err) => console.error("error during postgres disconnection", err.stack)),
-  ]);
+  return Promise.resolve();
 }
 
 function onShutdown() {
